@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% from "bootstrap5/form.html" import render_field %}
+
+{% block header %}
+		<div class="container d-flex justify-content-center col-sm-auto pt-1 mt-4 mb-5 px-5"> <!--style="min-height: 70vh;"-->
+			<div class="px-4 py-2" style="max-width: 160vh;"  id="post-header">
+				<!-- style used to be min-width:105vh -->
+				<div class="text-wrap col-lg-10 col-sm-auto mx-auto pb-5 mb-5">
+					<h1 id="news-title" class="pt-3 fw-bolder mt-xl-4 pt-xl-5" style="font-family:Georgia, 'Times New Roman', Times, serif;">{{post["title"]}}</h1>
+					<p class="my-2 lead fw-normal">{{post["subtitle"]}}</p>
+					{% set src_link = post['source_url'] %}
+					{% set destination = "_blank" %}
+					{% if not src_link %} {% set src_link = "" %} {% set destination = "_self" %} {% endif %}
+					<p class="mt-3 pb-2 mb-0">Article by
+						<a href="{{src_link}}" target="{{destination}}" class="text-light text-decoration-none fw-bold fst-italic" role="link">{{post["article_author"]}}</a>
+					</p>
+					<p class="mt-2 pb-3 mb-0">Posted by
+						<span class="text-light fw-bold fst-italic mb-0 pb-0">{{ post["uploader"].full_name }}</span>
+						on {{post['date'].strftime("%B %d, %Y")}}
+					</p>
+					{% if post['edit_date'] %}
+						<p class="mb-0">Updated on {{post['edit_date'].strftime("%B %d, %Y") }}</p>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+{% endblock %}
+
+{% block content %}
+	<section>
+		<div class="container d-flex justify-content-center col-sm-auto text-wrap mt-5 mb-4 px-5">
+			<div class="px-4" style="width: 128vh;">
+				<div class="text-wrap mx-auto lead fw-normal col-sm-auto" id="post-content">
+						<p>{{post["body"]|safe}}</p>
+				</div>
+				<div class="comment-section mt-5">
+					<h5 class="fw-bold">{{post["comments"]|count}} Comments</h5>
+					<div class="comment mt-4 mb-2" style="min-height: 10vh;">
+						<!-- {% if not current_user.is_authenticated %} {% set link = url_for('login') %} {% else %} {% set link = url_for('get_post', username=post['uploader'].username, number = post['id']) %} {% endif %} -->
+						<form action="{{url_for('get_post', number = post['id'])}}" method="post">
+							{{ form.csrf_token() }}
+							{{ render_field(form.text, placeholder="Leave a comment", form_type="inline", class="border-0", form_group_classes="mb-0") }}
+							<hr class="mb-1 mt-0 pt-0">
+							<div class="d-grid justify-content-end">
+								{% if not current_user.is_authenticated %} {% set state = "disabled" %} {% endif %}
+								{{ render_field(form.submit, placeholder="Login", button_size="sm", class=state) }}
+							</div>
+							{{ ckeditor.load(pkg_type="basic") }}
+							{{ ckeditor.config(name='text', height=100) }}
+						</form>
+					</div>
+					
+					<div class="container">
+						{% for comment in post['comments'] | reverse %}
+						<div class="mb-4 d-flex">
+								<div class="commenterImage col-1">
+									<img class="object-fit-contain me-0 col-12 rounded-5" src="{{ comment.comment_author.email | gravatar }}" alt="commenter-image">
+								</div>
+								<div class="comment col-11 ms-2 text-wrap">
+									<span class="fw-bold">{{comment.comment_author.full_name}}</span> • 
+									<span class="fs-6 fw-light">{{comment.date_created.strftime("%B %d, %Y")}}</span> <br>
+									<p class="mb-0">{{comment.text|safe }}</p>
+								</div>
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+				<div class="row mx-auto mt-4">
+					<div class="text-start col-6 ps-0">
+						<a href="#title" class="btn btn-outline-secondary btn-sm mx-auto">Go Back Up</a>
+					</div>
+					{% if current_user.id == post['uploader'].id and current_user.is_authenticated %}
+					<div class="text-end col-6 pe-0">
+						<a href="{{url_for('edit_post', number=post['id'])}}" class="btn btn-outline-info btn-sm text-capitalize">Edit Post</a>
+					</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+		{% set index = next_item.index(post['id'])|int %}
+		{% set go_right = next_item[index - 1] %}
+		{% set go_left = next_item[index + 1] %}
+		{% set id_count = next_item | count - 1 %}
+		{% if index == id_count %} {% set go_left = next_item[index] %} {% endif %}
+		{% if index == 0 %} {% set go_right = next_item[index] %} {% endif %}
+		<a class="btn btn-outline-light border-0 ms-lg-5 text-center position-fixed top-50 start-0 translate-middle-y col-sm-auto" id="left_arrow" role="button" href="{{url_for('get_post', number=go_left)}}">
+			<span class="align-middle fs-3 text-dark text-center" aria-hidden="true">&laquo;</span>
+		</a>
+		<a class="btn btn-outline-light border-0 me-lg-5 text-center position-fixed top-50 end-0 translate-middle-y col-sm-auto" id="right_arrow" href="{{url_for('get_post', number=go_right)}}">
+			<span class="align-middle fs-3 text-dark text-center" aria-hidden="true">&raquo;</span>
+		</a> 
+	</section>
+	
+{% endblock %}

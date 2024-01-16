@@ -1,0 +1,29 @@
+{% extends "base.html" %} 
+{% from "bootstrap5/form.html" import render_field %}
+
+{% block header%}
+<section>
+  <div class="container text-center mt-5">
+    <h1>Login</h1>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <p class="my-2">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+  </div>
+
+  <div class="container d-grid mx-auto text-wrap mt-4">
+    <div class="mx-auto my-sm-auto col-sm-auto col-md-3 col-lg-3 col-xl-4">
+      <form action="{{ url_for('login') }}" method="post">
+        {{ form.csrf_token() }}
+        {{ render_field(form.email, placeholder="Email", form_type="inline") }}
+        {{ render_field(form.password,  placeholder="Password", form_type="inline") }}
+        <input type="hidden" name="next" id="next_url" value="{{ request.args.get('next', '' )}}">
+        {{ render_field(form.submit, button_size="sm") }}
+      </form>
+    </div> 
+  </div>
+</section>
+{% endblock %}

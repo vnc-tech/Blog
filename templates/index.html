@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% from "bootstrap5/pagination.html" import render_pagination %}
+
+{% block header %}
+		<div class="align-middle col-lg-12 px-lg-4 px-sm-1 py-5 my-5 text-center" id="header-element">
+			<h1 class="display-1 pt-3 fw-bold mx-sm-2 text-wrap" style="font-family:Georgia, 'Times New Roman', Times, serif;" id="brand-name">AGORA</h1>
+			<!-- <div class="container"><hr></div> -->
+			<hr class="mx-auto m-0 mb-3" width="50%">
+			<div class="col-lg-6 mx-auto pb-3 mb-3">
+				<p class="fw-normal lead mb-2 pb-2">Welcome to AGORA daily <br> {{current_user.full_name}}</p>
+				<p class="text-wrap col-auto fst-normal mx-auto ">
+					<a href="https://www.britannica.com/on-this-day" target="_blank" 
+					class="text-wrap px-3 border border-0 border-start border-end bg-gradient text-light link-light link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">
+						{{today}}
+					</a>
+				</p>
+			</div>
+		</div>
+{% endblock %}
+
+{% block content %}
+	<section>
+		<div class="container mt-5 mb-4 px-lg-5 px-sm-3">
+			<div class="row justify-content-center px-lg-5 px-sm-3 mx-lg-5 gx-5 gx-lg-5">
+				{% for post in posts %}
+				<div class="col-lg-11">
+					<a href="{{url_for('get_post', number=post['id'])}}" class="link-dark text-decoration-none" title="{{post['title']}}">
+						<h2 class="display-5 fw-bold">{{post["title"]}}</h2>
+						<h3 class="display-6 fs-3">{{post["subtitle"]}}</h3>
+					</a>
+					<p class="mt-3 pb-2"  title="{{post['author']}}">Posted by
+						<a class="text-dark text-decoration-none fw-bold fst-italic">{{post["uploader"].full_name}}</a>
+						on {{post['date'].strftime("%B %d, %Y")}}
+					</p>
+					<hr class="my-4">
+				</div>
+				{% endfor %}
+				<div class="my-2 d-flex justify-content-end col-lg-11 col-md-11 col-sm-12 mx-auto">
+					<a href="{{url_for('new_post')}}" class="btn btn-outline-primary btn-sm text-capitalize">Add New Post</a>
+				</div>
+				<div class="d-flex justify-content-center">
+					<nav aria-label="Page navigation">
+						<ul class="pagination my-0">
+							
+							{% set class = "page-item" %}
+							{% set back = current_page - 1 %}
+							{% set forward = current_page + 1 %}
+							{% set class1 = "page-item" %}
+							{% set class2 = "page-item" %}
+
+							{% if current_page == 0 %} {% set class1 = "visually-hidden" %} {% set class0 = "visually-hidden" %}
+							{% elif current_page == 1 %} {% set link = url_for('index') %}
+							{% else %} {% set link = back %} {% set class0 = "page-item" %}
+							{% endif %}
+
+							<li class="{{class0}}" title="Latest">
+								<a class="page-link" href="{{url_for('index')}}" aria-label="Latest">
+									<span class="fw-bold" aria-hidden="true">&laquo;</span>
+								</a>
+							</li>
+
+							<li class="{{class1}}">
+								<a class="page-link" href="{{link}}" aria-label="Previous">
+									Prev
+								</a>
+							</li>
+							
+						
+							{% for pages in range(1, page + 1) %} {% if current_page == pages %} {% set focus = "active" %} {% endif %}
+							<li class="page-item {{focus}}"><a class="page-link" href="{{url_for('posts', page=pages)}}">{{pages}}</a></li>
+							{% endfor %}
+							
+							{% if current_page == 0 and posts|count > 10 %} {% set link = url_for('posts', page=forward) %}
+							{% elif current_page == page %} {% set class2 = "visually-hidden" %} {% set class3 = "visually-hidden" %}
+							{% else %} {% set link = url_for('posts', page =forward) %} {% set class3 = "page-item" %}
+							{% endif %}
+
+							<li class="{{class2}}">
+								<a class="page-link" href="{{link}}" aria-label="Next">
+									Next
+								</a>
+							</li>
+
+							<li class="{{class3}}" title="Oldest">
+								<a class="page-link" href="{{url_for('posts', page=page)}}" aria-label="Oldest">
+									<span class="fw-bold" aria-hidden="true">&raquo;</span>
+								</a>
+							</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+	</section>
+{% endblock %}

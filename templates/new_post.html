@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% from "bootstrap5/form.html" import render_form %}
+
+<div class="container d-grid mt-3 mb-5">
+    <h1 class="display-1 mb-3 fw-bolder mx-auto" style="font-family:Georgia, 'Times New Roman', Times, serif;">{{message}}</h1>
+    <div class="col-lg-10 mx-auto" style="height: fit-content;">
+        {{ render_form(form, novalidate=True) }}
+
+        {{ ckeditor.load(pkg_type='full') }}
+        {{ ckeditor.config(name='blog_content', height=300) }}
+    </div>
+    {% if state %}
+    <div class="col-12 col-lg-10 mx-auto mt-3">
+        <a class="btn btn-outline-danger btn-sm" href="{{url_for('delete_post', number=number)}}">Delete Post 🗑️</a>
+    </div>
+    {% endif %}
+</div>
+
+
+{% endblock %}

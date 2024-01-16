@@ -1,0 +1,70 @@
+html{
+    scroll-behavior: smooth;
+}
+#title {
+    background-size:cover;
+    background-position: center;
+    background-color: rgba(0, 0, 0, 0.458);
+    background-repeat: no-repeat;
+    background-blend-mode:color-burn;
+}
+
+input, #name, #email, #phoneNumber, #message {
+    border: 0;
+    border-bottom-width: 10px;
+    box-shadow: none;
+}
+
+input, #message {
+    height: 12rem;
+}
+
+#post-header{
+    background-color: rgba(0, 0, 0, 0.516);
+}
+img{
+    max-width: 100%;
+    object-position: center;
+}
+
+#brand-name{
+    letter-spacing: 3px;
+}
+
+#news-title{
+    letter-spacing: 2px;
+}
+
+#left_arrow{
+    opacity: .25;
+    width: fit-content;
+    height: max-content;
+}
+#right_arrow{
+    opacity: .25;
+    width: fit-content;
+    height: max-content;
+}
+#left_arrow:hover, #right_arrow:hover{
+    opacity: 1;
+}
+
+#post-content, .comment{
+    overflow-wrap: break-word;
+}
+
+/* .container{
+    display: block;
+} */
+
+/* video{
+    width: 100vw;
+    height: 100vh;
+    position:absolute;
+    object-fit: cover;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: -1;
+} */
