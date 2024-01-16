@@ -88,7 +88,7 @@ class User(db.Model, UserMixin):
         """Hybrid property full name attribute"""
         return f"{self.first_name} {self.last_name}"
 
-    def generate_username(self):
+    def generate_username(self, *args):
         """Generate and check if username exists in the database"""
         username = secrets.token_hex()
         check_username = db.session.query(
@@ -96,16 +96,16 @@ class User(db.Model, UserMixin):
         if check_username:
             while username == check_username.username:
                 username = secrets.token_hex()
-        return self.username
+        return username
 
-    def generate_token(self):
+    def generate_token(self, *args):
         """Generate and check token if token exists in the database"""
         token = secrets.token_hex()
         check_token = db.session.query(User).filter_by(token=token).first()
         if check_token:
             while token == check_token.token:
                 token = secrets.token_hex()
-        return self.token
+        return token
 
     def __repr__(self) -> str:
         return f"<name: {self.full_name}>"
@@ -377,6 +377,7 @@ def get_post(number):
     data = db.session.get(BlogPost, number)
     if data is not None:
         comment_form = CommentForm()
+        comment_form.submit.label = "Login"
         if request.method == "POST":
             if current_user.is_authenticated:
                 if comment_form.validate_on_submit():
@@ -513,10 +514,11 @@ def new_password():
 @fresh_login_required
 def change_username(username):
     """Route for changing username"""
-    if current_user.is_authenticated and current_user.username == username:
+    # if current_user.is_authenticated and current_user.username == username:
+    if current_user.is_authenticated:
         user = db.session.query(User).filter_by(id=current_user.id).first()
-        user.username = "vince"
-        # db.session.commit()
+        user.username = username
+        db.session.commit()
         # print(user.id)
         # print(current_user.id)
     return redirect(url_for("index"))
@@ -560,4 +562,4 @@ def page_not_found(error):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
