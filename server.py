@@ -377,7 +377,6 @@ def get_post(number):
     data = db.session.get(BlogPost, number)
     if data is not None:
         comment_form = CommentForm()
-        comment_form.submit.label = "Login"
         if request.method == "POST":
             if current_user.is_authenticated:
                 if comment_form.validate_on_submit():
@@ -562,4 +561,4 @@ def page_not_found(error):
 
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True)
