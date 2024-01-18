@@ -1,4 +1,5 @@
 """Blog Deployment"""
+# import os
 import datetime
 import secrets
 from typing import List
@@ -28,6 +29,7 @@ app_key = config["secret_key"]
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = app_key
+# print(os.environ.get("DB_URI"))
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///posts.db"
 
 db = SQLAlchemy(app)
@@ -64,9 +66,32 @@ def admin_only(function):
 
 class User(db.Model, UserMixin):
     """User Class"""
+
+    def generate_username(self):
+        """Generate and check if username exists in the database"""
+        username = secrets.token_hex()
+        check_username = db.session.query(
+            User).filter_by(username=username).first()
+        if check_username:
+            while username == check_username.username:
+                username = secrets.token_hex()
+        self.username = username
+        return self.username
+
+    def generate_token(self):
+        """Generate and check token if token exists in the database"""
+        token = secrets.token_hex()
+        check_token = db.session.query(User).filter_by(token=token).first()
+        if check_token:
+            while token == check_token.token:
+                token = secrets.token_hex()
+        self.token = token
+        return self.token
+
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    token: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    token: Mapped[str] = mapped_column(
+        String, default=generate_token, unique=True, nullable=False)
     date_created: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), default=datetime.datetime.now, nullable=False)
     date_updated: Mapped[datetime.datetime] = mapped_column(
@@ -74,7 +99,8 @@ class User(db.Model, UserMixin):
     email: Mapped[str] = mapped_column(
         String(250), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(250), nullable=False)
-    username: Mapped[str] = mapped_column(String(250), nullable=False)
+    username: Mapped[str] = mapped_column(
+        String(250), default=generate_username, nullable=False)
     first_name: Mapped[str] = mapped_column(String(250), nullable=False)
     last_name: Mapped[str] = mapped_column(String(250), nullable=False)
     birth_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
@@ -87,25 +113,6 @@ class User(db.Model, UserMixin):
     def full_name(self):
         """Hybrid property full name attribute"""
         return f"{self.first_name} {self.last_name}"
-
-    def generate_username(self, *args):
-        """Generate and check if username exists in the database"""
-        username = secrets.token_hex()
-        check_username = db.session.query(
-            User).filter_by(username=username).first()
-        if check_username:
-            while username == check_username.username:
-                username = secrets.token_hex()
-        return username
-
-    def generate_token(self, *args):
-        """Generate and check token if token exists in the database"""
-        token = secrets.token_hex()
-        check_token = db.session.query(User).filter_by(token=token).first()
-        if check_token:
-            while token == check_token.token:
-                token = secrets.token_hex()
-        return token
 
     def __repr__(self) -> str:
         return f"<name: {self.full_name}>"
@@ -274,8 +281,8 @@ def signup():
                     email=form.email.data.strip(),
                     password=bcrypt.generate_password_hash(
                         form.password.data.strip()).decode("utf-8"),
-                    token=User.generate_token(),
-                    username=User.generate_username()
+                    # token=User.generate_token(),
+                    # username=User.generate_username()
                 )
                 db.session.add(new_user)
                 db.session.commit()
@@ -287,7 +294,8 @@ def signup():
                 flash("Email already exists")
                 return redirect(url_for("login"))
         flash("Incomplete Entry")
-    return render_template("signup.html", form=form, bg=bg, copyRight=datetime.datetime.now().strftime("%Y"))
+    return render_template("signup.html", form=form, bg=bg,
+                           copyRight=datetime.datetime.now().strftime("%Y"))
 
 
 @app.route('/login', methods=["POST", "GET"])
@@ -316,7 +324,8 @@ def login():
             else:
                 flash("Email not found, create an account to log in.")
                 return redirect(url_for("signup"))
-    return render_template("login.html", form=login_form, bg=bg, copyRight=datetime.datetime.now().strftime("%Y"))
+    return render_template("login.html", form=login_form, bg=bg,
+                           copyRight=datetime.datetime.now().strftime("%Y"))
 
 
 @app.route("/posts/<int:page>", methods=["POST", "GET"])
@@ -446,6 +455,7 @@ def delete_post(number):
 @app.route('/delete-comment/<int:number>')
 @fresh_login_required
 def delete_comment(number):
+    """For Deleting comment"""
     pass
 
 
