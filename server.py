@@ -1,5 +1,5 @@
 """Blog Deployment"""
-# import os
+import os
 import datetime
 import secrets
 from typing import List
@@ -20,17 +20,16 @@ from dotenv import dotenv_values
 from forms import RegiterForm, CommentForm, AddPost, LoginForm, ChangePassword
 
 
-config = {
-    **dotenv_values(".env.secrets")
-}
+# config = {
+#     **dotenv_values(".env.secrets")
+# }
 
-app_key = config["secret_key"]
+# app_key = config["secret_key"]
 
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = app_key
-# print(os.environ.get("DB_URI"))
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///posts.db"
+app.config["SECRET_KEY"] = os.environ.get("FLASK_KEY")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DB_URI", "sqlite:///posts.db")
 
 db = SQLAlchemy(app)
 bt5 = Bootstrap5(app)
