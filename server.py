@@ -135,7 +135,7 @@ class BlogPost(db.Model):
     edit_date: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), nullable=True)
     body: Mapped[str] = mapped_column(Text, nullable=False)
-    img_url: Mapped[str] = mapped_column(String(250), nullable=False)
+    img_url: Mapped[str] = mapped_column(String, nullable=False)
     source_url: Mapped[str] = mapped_column(String, nullable=True)
     comments: Mapped[List["Comment"]] = relationship(
         back_populates="parent_post", cascade="all, delete-orphan")
