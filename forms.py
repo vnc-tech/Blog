@@ -20,7 +20,7 @@ class RegiterForm(FlaskForm):
     birth_date = DateField("Birth Date", validators=[DataRequired()], render_kw={
         "style": f"height:{height}"})
     submit = SubmitField("Sign up", render_kw={
-                         "style": "height:6vh; width:5vw"})
+                         "style": "height:6vh; min-width:5vw"})
 
 
 class AddPost(FlaskForm):
